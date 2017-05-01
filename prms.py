@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 
-prmsdtypes = {int: 1, float: 2, str: 4}
+prmsdtypes = {int: 1, float: 2, str: 4,
+              np.int32: 1, np.int64: 1}
 dtypes = {v:k for k, v in prmsdtypes.items()}
 fmt = {1: '%d', 2: '%.16f', 4: '%s'}
 
@@ -13,9 +14,14 @@ class param:
         if not isinstance(values, list) and not isinstance(values, np.ndarray):
             values = [values]
         if dtype is None:
-            for prmsdtype, pydtype in dtypes.items():
-                if isinstance(values[0], pydtype):
-                    self.dtype = prmsdtype
+            self.dtype = 1 # default to int
+            if isinstance(values[0], float):
+                self.dtype = 2
+            elif isinstance(values[0], str):
+                self.dtype = 4
+            #for prmsdtype, pydtype in dtypes.items():
+            #    if isinstance(values[0], pydtype):
+            #        self.dtype = prmsdtype
         else:
             self.dtype = dtype
             pydtype = dtypes[dtype]
@@ -24,7 +30,10 @@ class param:
 
         self.name = name
         self.ndim = ndim
-        self.dim_names = dim_names
+        if isinstance(dim_names, str):
+            self.dim_names = [dim_names]
+        else:
+            self.dim_names = dim_names
         self.nvalues = len(values)
         self.array = np.array(values, dtype=dtypes[self.dtype])
         if nrow is not None and ncol is not None:
@@ -50,8 +59,13 @@ class param:
 class paramFile(object):
 
     def __init__(self, filename='stuff.param', dimensions={}, params={},
-                 nrow=None, ncol=None,
+                 nrow=None, ncol=None, comments=None,
                  verbose=False):
+
+        if comments is None:
+            self.comments = 'paramfile created by pyrms\n'
+        else:
+            self.comments = comments.strip() + '\n'
 
         self.filename = filename
         self.dimensions = dimensions
@@ -144,6 +158,9 @@ class paramFile(object):
             return pf
 
     def write(self, filename=None):
+
+        if filename is None:
+            filename = self.filename
 
         # determine an order for writing parameters
         # (alphabetically if none specified)
