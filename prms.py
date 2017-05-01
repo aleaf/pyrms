@@ -33,31 +33,38 @@ class param:
         self.verbose = verbose
 
     def write(self, f):
-        #with open(filename, 'a') as f:
+
+        # update the array length in case it has been changed
+        a = self.array.ravel()
+        self.nvalues = len(a)
         f.write('####\n')
         f.write('{}\n{:d}\n'.format(self.name, self.ndim))
         for n in self.dim_names:
             f.write('{}\n'.format(n))
         f.write('{:d}\n{:d}\n'.format(self.nvalues, self.dtype))
-        #with open(filename, 'ab') as f:
-        df = pd.DataFrame(self.array.ravel())
+        df = pd.DataFrame(a)
         df.to_csv(f, index=False, header=False)
-        #np.savetxt(f, self.array.ravel(), fmt=fmt[self.dtype])
         if self.verbose:
             print(self.name)
 
-class paramFile:
+class paramFile(object):
 
     def __init__(self, filename='stuff.param', dimensions={}, params={},
-                 nrow=None, ncol=None, verbose=False):
+                 nrow=None, ncol=None,
+                 verbose=False):
 
         self.filename = filename
         self.dimensions = dimensions
         self.params = params
-        self.df = pd.DataFrame()
         self.nrow = nrow
         self.ncol = ncol
         self.verbose = verbose
+        self.param_order = []
+        return
+
+    @property
+    def df(self):
+        return self.get_dataframe()
 
     def get_dataframe(self):
         plist = []
@@ -108,6 +115,7 @@ class paramFile:
                                   dim_names=dim_names,
                                   dtype=dtype,
                                   nrow=self.nrow, ncol=self.ncol)
+        self.param_order.append(name)
         if self.verbose:
             print(name)
 
@@ -127,16 +135,20 @@ class paramFile:
                     print('reading parameters...')
                 line = paramFile._read_stuff(input, line, pf.read_param)
 
-        pf.df = pf.get_dataframe()
         if model is not None:
             model.dimensions.update(pf.dimensions)
             model.params.update(pf.params)
             model.param_files[filename] = pf
-            model.paramdf.append(pf.get_dataframe())
+            model.paramdf.append(pf.df)
         else:
             return pf
 
     def write(self, filename=None):
+
+        # determine an order for writing parameters
+        # (alphabetically if none specified)
+        if len(self.param_order) != len(self.params):
+            self.param_order = sorted(list(self.params.keys()))
 
         with open(filename, 'w') as output:
             output.write(self.comments)
@@ -151,6 +163,6 @@ class paramFile:
                     print('\nwriting parameters...')
                 if len(self.dimensions) > 0:
                     output.write('** Parameters **\n')
-            for v in self.params.values():
-                v.write(output)
+            for k in self.param_order:
+                self.params[k].write(output)
 
