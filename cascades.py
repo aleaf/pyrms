@@ -1,6 +1,8 @@
 import sys
 sys.path.append('D:/ATLData/Documents/GitHub/pyrms/')
 sys.path.append('D:/ATLData/Documents/GitHub/flopy/')
+sys.path.append('D:/github/flopy/')
+sys.path.append('D:/github/GIS_utils/')
 from prms import paramFile
 import numpy as np
 import pandas as pd
@@ -42,8 +44,8 @@ class cascadeParamFile(paramFile):
     @property
     def df(self):
         assert self.didname in self.params.keys() and self.uidname in self.params.keys()
-        did = self.params[self.didname].array
-        uid = self.params[self.uidname].array
+        did = self.params[self.didname].array.ravel()
+        uid = self.params[self.uidname].array.ravel()
         lines = [self.make_arrow(d, u) for d, u in zip(did, uid) if d != 0]
         return pd.DataFrame({self.didname: did[did != 0], self.uidname: uid[did != 0], 'geometry': lines})
 
