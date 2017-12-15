@@ -28,12 +28,16 @@ class cascadeParamFile(paramFile):
         self.gw = gw # groundwater or hru cascades
 
         self.xy_points = xy_points
+        self.epsg = None
+        self.proj4 = None
         if sr is not None:
             self.xy_points = np.array(list(zip(sr.xcentergrid.ravel(),
                                                sr.ycentergrid.ravel())))
             nrow, ncol = sr.nrow, sr.ncol
             if sr.epsg is not None:
                 self.epsg = sr.epsg
+            elif sr.proj4_str is not None:
+                self.proj4 = sr.proj4_str
         return
 
 
@@ -115,10 +119,12 @@ class cascadeParamFile(paramFile):
         ls = LineString([p1, p2])
         return ls
 
-    def write_cascades_shapefile(self, filename, gw=False, epsg=None):
+    def write_cascades_shapefile(self, filename, gw=False, epsg=None, proj4=None):
         epsg = self.epsg if epsg is None else epsg
-        df2shp(self.df, filename, epsg=epsg)
+        proj4 = self.proj4 if proj4 is None else proj4
+        df2shp(self.df, filename, epsg=epsg, proj4=proj4)
 
-    def write_outlets_shapefile(self, filename, gw=False, epsg=None):
+    def write_outlets_shapefile(self, filename, gw=False, epsg=None, proj4=None):
         epsg = self.epsg if epsg is None else epsg
-        df2shp(self.outlets, filename, epsg=epsg)
+        proj4 = self.proj4 if proj4 is None else proj4
+        df2shp(self.outlets, filename, epsg=epsg, proj4=proj4)
