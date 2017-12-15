@@ -108,23 +108,54 @@ class paramFile(object):
     def _read_stuff(f, line, addtoo):
         # in case index is already at delimiter
         if '####' in line:
-            addtoo(f)
+            result = addtoo(f)
         for line in f:
+            if result == 'break':
+                return
             if '####' in line:
-                addtoo(f)
+                result = addtoo(f)
+            # params are read until ####
+            # line will be the name of the next parameter
+            if result == '####':
+                while result == '####':
+                    result = addtoo(f, name=line.strip())
             else:
                 return line
 
-    def read_param(self, f):
-        name = next(f).strip()
+    def read_param(self, f, name=None):
+        if name is None:
+            name = next(f).strip()
         ndim = int(next(f).strip())
         dim_names = []
         for d in range(ndim):
             dim_names.append(next(f).strip())
         nvalues = int(next(f).strip())
+
+        # skip reading this one if not in load_only
+        if self.load_only is not None:
+            if len(self.load_only) == 0:
+                return 'break'
+            elif name not in self.load_only:
+                for val in f:
+                    val = val.strip()
+                    if '####' in val:
+                        return val
+            else:
+                self.load_only.remove(name)
+
         dtype = int(next(f).strip())
         convert_dtype = dtypes[dtype]
-        values = [convert_dtype(next(f).strip()) for i in range(nvalues)]
+        values = []
+        for val in f:
+            val = val.strip()
+            if '*' in val:
+                nval, val = val.split('*')
+                values += [convert_dtype(val)] * int(nval)
+            elif '####' in val:
+                break
+            else:
+                values.append(convert_dtype(val))
+        #values = [convert_dtype(next(f).strip()) for i in range(nvalues)]
         self.params[name] = param(name, values, ndim=ndim,
                                   dim_names=dim_names,
                                   dtype=dtype,
@@ -134,9 +165,14 @@ class paramFile(object):
             print(name)
 
     @staticmethod
-    def load(filename, model=None, nrow=None, ncol=None, verbose=False):
+    def load(filename, model=None, nrow=None, ncol=None, verbose=False,
+             load_only=None):
+
+        if load_only is not None and isinstance(load_only, str):
+            load_only = [load_only]
 
         pf = paramFile(filename=filename, nrow=nrow, ncol=ncol, verbose=verbose)
+        pf.load_only = load_only
         with open(filename) as input:
 
             line = pf.read_comments(input)
@@ -149,6 +185,9 @@ class paramFile(object):
                     print('reading parameters...')
                 line = paramFile._read_stuff(input, line, pf.read_param)
 
+        if load_only is not None and len(load_only) > 0:
+            for param in load_only:
+                print('{} not found!'.format(param))
         if model is not None:
             model.dimensions.update(pf.dimensions)
             model.params.update(pf.params)
