@@ -109,6 +109,11 @@ class paramFile(object):
         # in case index is already at delimiter
         if '####' in line:
             result = addtoo(f)
+            # params are read until ####
+            # line will be the name of the next parameter
+            if result == '####':
+                while result == '####':
+                    result = addtoo(f)
         for line in f:
             if result == 'break':
                 return
@@ -118,7 +123,7 @@ class paramFile(object):
             # line will be the name of the next parameter
             if result == '####':
                 while result == '####':
-                    result = addtoo(f, name=line.strip())
+                    result = addtoo(f, name=line)
             else:
                 return line
 
