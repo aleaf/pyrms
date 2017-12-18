@@ -121,9 +121,11 @@ class paramFile(object):
                 result = addtoo(f)
             # params are read until ####
             # line will be the name of the next parameter
-            if result == '####':
-                while result == '####':
-                    result = addtoo(f, name=line)
+            #if result == '####':
+            #    while result == '####':
+            #        result = addtoo(f, name=line)
+            elif result is not None:
+                result = addtoo(f, name=line.strip())
             else:
                 return line
 
@@ -168,6 +170,7 @@ class paramFile(object):
         self.param_order.append(name)
         if self.verbose:
             print(name)
+        return val
 
     @staticmethod
     def load(filename, model=None, nrow=None, ncol=None, verbose=False,
