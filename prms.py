@@ -107,6 +107,7 @@ class paramFile(object):
     @staticmethod
     def _read_stuff(f, line, addtoo):
         # in case index is already at delimiter
+        result = None
         if '####' in line:
             result = addtoo(f)
             # params are read until ####
