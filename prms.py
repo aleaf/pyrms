@@ -29,23 +29,28 @@ class param:
             values = list(map(pydtype, values))
 
         self.name = name
-        self.ndim = ndim
         if isinstance(dim_names, str):
             self.dim_names = [dim_names]
         else:
             self.dim_names = dim_names
-        self.nvalues = len(values)
         self.array = np.array(values, dtype=dtypes[self.dtype])
         if nrow is not None and ncol is not None:
             if self.nvalues == nrow * ncol:
                 self.array = np.reshape(values, (nrow, ncol))
         self.verbose = verbose
 
+    @property
+    def ndim(self):
+        return len(self.dim_names)
+
+    @property
+    def nvalues(self):
+        return len(self.array)
+
     def write(self, f):
 
         # update the array length in case it has been changed
         a = self.array.ravel()
-        self.nvalues = len(a)
         f.write('####\n')
         f.write('{}\n{:d}\n'.format(self.name, self.ndim))
         for n in self.dim_names:
