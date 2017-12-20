@@ -22,6 +22,14 @@ class model:
         self.ncol = ncol
 
     @property
+    def params(self):
+        params = {}
+        for k, v in self.files.items():
+            for n, p in v.params.items():
+                params[n] = p
+        return params
+
+    @property
     def summary(self):
         return pd.concat([v.summary for k, v in self.files.items()])
 

@@ -72,6 +72,11 @@ class param:
                 val = self.array[2]
         return val
 
+    def plot(self):
+        if len(self.array.shape) == 2:
+            import matplotlib.pyplot as plt
+            plt.imshow(self.array)
+            plt.colorbar()
 
     def write(self, f):
 
@@ -118,13 +123,15 @@ class paramFile(object):
                           v.nvalues,
                           v.min,
                           v.mean,
-                          v.max])
+                          v.max,
+                          self.filename])
         return pd.DataFrame(plist, columns=['name',
                                             'dimensions',
                                             'nvalues',
                                             'min',
                                             'mean',
-                                            'max'])
+                                            'max',
+                                            'file'])
 
     def read_comments(self, f):
         comments = ''
