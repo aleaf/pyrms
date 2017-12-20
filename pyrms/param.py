@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
+from .dtypes import dtypes
 
-prmsdtypes = {int: 1, float: 2, str: 4,
-              np.int32: 1, np.int64: 1}
-dtypes = {v:k for k, v in prmsdtypes.items()}
-fmt = {1: '%d', 2: '%.16f', 4: '%s'}
 
 class param:
 
@@ -73,8 +70,8 @@ class paramFile(object):
             self.comments = comments.strip() + '\n'
 
         self.filename = filename
-        self.dimensions = dimensions
-        self.params = params
+        self.dimensions = dimensions.copy()
+        self.params = params.copy()
         self.nrow = nrow
         self.ncol = ncol
         self.verbose = verbose
@@ -82,14 +79,23 @@ class paramFile(object):
         return
 
     @property
-    def df(self):
-        return self.get_dataframe()
+    def summary(self):
+        return self.get_summary_dataframe()
 
-    def get_dataframe(self):
+    def get_summary_dataframe(self):
         plist = []
         for k, v in self.params.items():
-            plist.append([v.name, v.nvalues, v.array.min(), v.array.mean(), v.array.max()])
-        return pd.DataFrame(plist, columns=['name', 'nvalues', 'min', 'mean', 'max'])
+            plist.append([v.name, ' '.join(v.dim_names),
+                          v.nvalues,
+                          v.array.min(),
+                          v.array.mean(),
+                          v.array.max()])
+        return pd.DataFrame(plist, columns=['name',
+                                            'dimensions',
+                                            'nvalues',
+                                            'min',
+                                            'mean',
+                                            'max'])
 
     def read_comments(self, f):
         comments = ''

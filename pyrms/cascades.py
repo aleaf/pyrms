@@ -3,15 +3,12 @@ sys.path.append('D:/ATLData/Documents/GitHub/pyrms/')
 sys.path.append('D:/ATLData/Documents/GitHub/flopy/')
 sys.path.append('D:/github/flopy/')
 sys.path.append('D:/github/GIS_utils/')
-from prms import paramFile
 import numpy as np
 import pandas as pd
 from shapely.geometry import LineString, Point
-from prms import paramFile
-import matplotlib.pyplot as plt
-from flopy.utils.reference import SpatialReference
-from GISio import df2shp, arc_ascii
-
+from .param import paramFile
+#from flopy.utils.reference import SpatialReference
+from GISio import df2shp
 
 
 class cascadeParamFile(paramFile):
@@ -65,12 +62,16 @@ class cascadeParamFile(paramFile):
 
     @staticmethod
     def load(filename, model=None, nrow=None, ncol=None,
-             xy_points=None, sr=None, gw=False, verbose=False):
+             xy_points=None, sr=None, gw=False, verbose=False,
+             load_only=None):
 
         pf = cascadeParamFile(filename=filename, nrow=nrow, ncol=ncol,
                               xy_points=None, sr=sr, gw=gw,
                               verbose=verbose)
 
+        if load_only is not None and isinstance(load_only, str):
+            load_only = [load_only]
+        pf.load_only = load_only
         with open(filename) as input:
 
             line = pf.read_comments(input)
