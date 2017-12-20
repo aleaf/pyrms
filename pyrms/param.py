@@ -44,6 +44,35 @@ class param:
     def nvalues(self):
         return len(self.array)
 
+    @property
+    def min(self):
+        try:
+            val = self.array.min()
+        except:
+            val = self.array[0]
+        return val
+
+    @property
+    def mean(self):
+        val = np.nan
+        try:
+            val = self.array.mean()
+        except:
+            if self.nvalues > 1:
+                val = self.array[1]
+        return val
+
+    @property
+    def max(self):
+        val = np.nan
+        try:
+            val = self.array.max()
+        except:
+            if self.nvalues > 2:
+                val = self.array[2]
+        return val
+
+
     def write(self, f):
 
         # update the array length in case it has been changed
@@ -87,9 +116,9 @@ class paramFile(object):
         for k, v in self.params.items():
             plist.append([v.name, ' '.join(v.dim_names),
                           v.nvalues,
-                          v.array.min(),
-                          v.array.mean(),
-                          v.array.max()])
+                          v.min,
+                          v.mean,
+                          v.max])
         return pd.DataFrame(plist, columns=['name',
                                             'dimensions',
                                             'nvalues',
