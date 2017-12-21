@@ -6,6 +6,7 @@ from .dtypes import dtypes
 class param:
 
     def __init__(self, name, values, ndim=1, dim_names=['one'],
+                 filename=None,
                  dtype=None, nrow=None, ncol=None, verbose=False):
 
         if not isinstance(values, list) and not isinstance(values, np.ndarray):
@@ -26,6 +27,7 @@ class param:
             values = list(map(pydtype, values))
 
         self.name = name
+        self.filename = filename
         if isinstance(dim_names, str):
             self.dim_names = [dim_names]
         else:
@@ -78,8 +80,21 @@ class param:
             plt.imshow(self.array)
             plt.colorbar()
 
-    def write(self, f):
-
+    def write(self, f=None, **kwargs):
+        """Write information for a parameter
+        
+        Parameters
+        ----------
+        f : filename (string) or open file handle
+        kwargs : keyword arguments to pandas.DataFrame.to_csv()
+        """
+        if f is None:
+            f = self.filename
+        close = False
+        if isinstance(f, str):
+            filename = f
+            f = open(f, 'w')
+            close=True
         # update the array length in case it has been changed
         a = self.array.ravel()
         f.write('####\n')
@@ -88,9 +103,12 @@ class param:
             f.write('{}\n'.format(n))
         f.write('{:d}\n{:d}\n'.format(self.nvalues, self.dtype))
         df = pd.DataFrame(a)
-        df.to_csv(f, index=False, header=False)
+        df.to_csv(f, index=False, header=False, **kwargs)
         if self.verbose:
             print(self.name)
+        if close:
+            f.close()
+            print('wrote {}'.format(filename))
 
 class paramFile(object):
 
@@ -236,10 +254,13 @@ class paramFile(object):
                 if verbose:
                     print('reading dimensions...')
                 line = paramFile._read_stuff(input, line, pf.read_dimension)
-            if 'Parameters' in line or '####' in line:
-                if verbose:
-                    print('reading parameters...')
-                line = paramFile._read_stuff(input, line, pf.read_param)
+            if line is not None:
+                if 'Parameters' in line or '####' in line:
+                    if verbose:
+                        print('reading parameters...')
+                    line = paramFile._read_stuff(input, line, pf.read_param)
+            else:
+                pass
 
         if load_only is not None and len(load_only) > 0:
             for param in load_only:
@@ -277,4 +298,5 @@ class paramFile(object):
                     output.write('** Parameters **\n')
             for k in self.param_order:
                 self.params[k].write(output)
+            print('wrote {}'.format(self.filename))
 
