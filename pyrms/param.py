@@ -42,7 +42,7 @@ class param:
 
     @property
     def nvalues(self):
-        return len(self.array)
+        return self.array.size
 
     @property
     def min(self):

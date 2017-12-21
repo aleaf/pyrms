@@ -33,11 +33,20 @@ class model:
     def summary(self):
         return pd.concat([v.summary for k, v in self.files.items()])
 
+    def check(self):
+
+        # check for duplicate parameter values
+        isduplicate = self.summary.duplicated(subset='name', keep=False)
+        df = self.summary.loc[isduplicate]
+        if len(df) > 0:
+            print('Warning: Duplicate parameter entries found! See duplicate_params.csv')
+            df.to_csv('duplicate_params.csv')
+
     @staticmethod
     def load(control_file, m=None,
              xy_points=None, sr=None, nrow=None, ncol=None,
              skip=None,
-             verbose=False):
+             verbose=False, check=True):
 
         if m is None:
             m = model(control_file=control_file, verbose=verbose)
@@ -62,5 +71,6 @@ class model:
                                                      xy_points=xy_points, sr=sr,
                                                      nrow=nrow, ncol=ncol,
                                                      verbose=verbose)
+        m.check()
         return m
 
