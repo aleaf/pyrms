@@ -67,8 +67,9 @@ class model:
              skip=None,
              verbose=False, check=True):
 
-        load_only = [os.path.split(f)[1].split('.')[0]
-                     for f in load_only]
+        if load_only is not None:
+            load_only = [os.path.split(f)[1].split('.')[0]
+                         for f in load_only]
 
         if m is None:
             m = model(control_file=control_file,
