@@ -28,15 +28,23 @@ class model:
         self.nrow = nrow
         self.ncol = ncol
 
+    def __setattr__(self, key, value):
+        if key == "dimensions":
+            super(model, self). \
+                __setattr__("_dimensions", np.atleast_1d(np.array(value)))
+        else:
+            super(model, self).__setattr__(key, value)
+
     @property
     def dimensions(self):
         dims = self._dimensions
         if dims is None:
             dims = {}
-        for k, v in self.files.items():
-            if len(v.dimensions) > 0:
-                dims.update(v.dimensions)
-                self.dimensions_file = k
+            for k, v in self.files.items():
+                if len(v.dimensions) > 0:
+                    dims.update(v.dimensions)
+                    self.dimensions_file = k
+            self._dimensions = dims
         return dims
 
     @property

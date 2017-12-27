@@ -5,7 +5,7 @@ from .dtypes import dtypes
 
 class param:
 
-    def __init__(self, name, values, ndim=1, dim_names=['one'],
+    def __init__(self, name, values, dim_names=['one'],
                  filename=None,
                  dtype=None, nrow=None, ncol=None, verbose=False):
 
@@ -17,9 +17,6 @@ class param:
                 self.dtype = 2
             elif isinstance(values[0], str):
                 self.dtype = 4
-            #for prmsdtype, pydtype in dtypes.items():
-            #    if isinstance(values[0], pydtype):
-            #        self.dtype = prmsdtype
         else:
             self.dtype = dtype
             pydtype = dtypes[dtype]
@@ -229,10 +226,10 @@ class paramFile(object):
             else:
                 values.append(convert_dtype(val))
         #values = [convert_dtype(next(f).strip()) for i in range(nvalues)]
-        self.params[name] = param(name, values, ndim=ndim,
+        self.params[name] = param(name, values,
                                   dim_names=dim_names,
-                                  dtype=dtype,
-                                  nrow=self.nrow, ncol=self.ncol)
+                                  filename=self.filename,
+                                  dtype=dtype, nrow=self.nrow, ncol=self.ncol)
         self.param_order.append(name)
         if self.verbose:
             print(name)
