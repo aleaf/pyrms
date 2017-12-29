@@ -220,11 +220,11 @@ class paramFile(object):
             val = val.strip()
             if '*' in val:
                 nval, val = val.split('*')
-                values += [convert_dtype(val)] * int(nval)
+                values += [convert_dtype(float(val))] * int(nval)
             elif '####' in val:
                 break
             else:
-                values.append(convert_dtype(val))
+                values.append(convert_dtype(float(val)))
         #values = [convert_dtype(next(f).strip()) for i in range(nvalues)]
         self.params[name] = param(name, values,
                                   dim_names=dim_names,

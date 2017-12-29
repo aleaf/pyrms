@@ -47,15 +47,15 @@ class cascadeParamFile(paramFile):
         assert self.didname in self.params.keys() and self.uidname in self.params.keys()
         did = self.params[self.didname].array.ravel()
         uid = self.params[self.uidname].array.ravel()
-        lines = [self.make_arrow(d, u) for d, u in zip(did, uid) if d != 0]
-        return pd.DataFrame({self.didname: did[did != 0], self.uidname: uid[did != 0], 'geometry': lines})
+        lines = [self.make_arrow(d, u) for d, u in zip(did, uid) if d > 0]
+        return pd.DataFrame({self.didname: did[did > 0], self.uidname: uid[did > 0], 'geometry': lines})
 
     @property
     def outlets(self):
         assert self.didname in self.params.keys() and self.uidname in self.params.keys()
         did = self.params[self.didname].array
         uid = self.params[self.uidname].array
-        outlets = uid[did == 0]
+        outlets = uid[did <= 0]
         outletxys = self.xy_points[outlets - 1]
         outletpoints = [Point(*p) for p in outletxys]
         return pd.DataFrame({self.uidname: outlets, 'geometry': outletpoints})
