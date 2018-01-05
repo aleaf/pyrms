@@ -108,10 +108,6 @@ class model:
                                                      xy_points=xy_points, sr=sr,
                                                      nrow=nrow, ncol=ncol,
                                                      verbose=verbose)
-        # dimensions must be listed first
-        if m.dimensions_file is not None and m.files[0] != m.dimensions_file:
-            m.files.remove(m.dimensions_file)
-            m.file.insert(0, m.dimensions_file)
         m.check()
         return m
 
@@ -121,9 +117,6 @@ class model:
         if filename is None:
             filename = 'dimensions.params'
 
-        if filename in self.files and self.files[0] != filename:
-            self.files.remove(self.dimensions_file)
-            self.file.insert(0, self.dimensions_file)
         df = paramFile(filename, dimensions=self.dimensions)
         df.write()
 

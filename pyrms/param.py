@@ -214,17 +214,22 @@ class paramFile(object):
                 self.load_only.remove(name)
 
         dtype = int(next(f).strip())
-        convert_dtype = dtypes[dtype]
+        if dtype != 4:
+            def convert_dtype(val):
+                return dtypes[dtype](float(val))
+        else:
+            convert_dtype = dtypes[dtype]
+
         values = []
         for val in f:
             val = val.strip()
             if '*' in val:
                 nval, val = val.split('*')
-                values += [convert_dtype(float(val))] * int(nval)
+                values += [convert_dtype(val)] * int(nval)
             elif '####' in val:
                 break
             else:
-                values.append(convert_dtype(float(val)))
+                values.append(convert_dtype(val))
         #values = [convert_dtype(next(f).strip()) for i in range(nvalues)]
         self.params[name] = param(name, values,
                                   dim_names=dim_names,
@@ -295,5 +300,5 @@ class paramFile(object):
                     output.write('** Parameters **\n')
             for k in self.param_order:
                 self.params[k].write(output)
-            print('wrote {}'.format(self.filename))
+            print('wrote {}'.format(filename))
 
