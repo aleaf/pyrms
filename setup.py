@@ -6,9 +6,9 @@ from setuptools import setup
 
 from pyrms import __version__, __name__, __author__
 
-if not sys.version_info[0] != 3:
+if not sys.version_info[0] == 3:
     print('Sorry, pyrms only supports Python 3')
-    print('  Your version of Python: {}'.format(sys.version_info[0]))
+    print('  Your version of Python: {}'.format(sys.version))
     sys.exit(1)  # return non-zero value for failure
 
 long_description = ''

@@ -5,11 +5,24 @@ sys.path.append('D:/github/flopy/')
 sys.path.append('D:/github/GIS_utils/')
 import numpy as np
 import pandas as pd
-from shapely.geometry import LineString, Point
+try:
+    from shapely.geometry import LineString, Point
+except:
+    LineString = False
+    Point = False
 from .param import paramFile
-#from flopy.utils.reference import SpatialReference
-from GISio import df2shp
+try:
+    from GISio import df2shp
+except:
+    df2shp = False
 
+if not LineString:
+    class LineString:
+        def __init__(self, crds):
+            return crds
+    class Point:
+        def __init__(self, x, y):
+            return x, y
 
 class cascadeParamFile(paramFile):
 
@@ -123,9 +136,15 @@ class cascadeParamFile(paramFile):
     def write_cascades_shapefile(self, filename, gw=False, epsg=None, proj4=None):
         epsg = self.epsg if epsg is None else epsg
         proj4 = self.proj4 if proj4 is None else proj4
+        if not df2shp:
+            print('GIS_utils not installed.')
+            return
         df2shp(self.df, filename, epsg=epsg, proj4=proj4)
 
     def write_outlets_shapefile(self, filename, gw=False, epsg=None, proj4=None):
         epsg = self.epsg if epsg is None else epsg
         proj4 = self.proj4 if proj4 is None else proj4
+        if not df2shp:
+            print('GIS_utils not installed.')
+            return
         df2shp(self.outlets, filename, epsg=epsg, proj4=proj4)
