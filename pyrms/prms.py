@@ -21,6 +21,7 @@ class model:
         self.control_file = control_file
         self.dimensions_file = None
         self._dimensions = None
+        self.param_files = []
 
         self.xy_points = xy_points # placeholder for non-structured ref
         self.sr = sr
@@ -32,6 +33,9 @@ class model:
         if key == "dimensions":
             super(model, self). \
                 __setattr__("_dimensions", np.atleast_1d(np.array(value)))
+        elif key == "params":
+            super(model, self). \
+                __setattr__("_params", np.atleast_1d(np.array(value)))
         else:
             super(model, self).__setattr__(key, value)
 
@@ -46,6 +50,20 @@ class model:
                     self.dimensions_file = k
             self._dimensions = dims
         return dims
+
+    @property
+    def hru_type(self):
+        hru_type = self.params.get('hru_type', None)
+        if hru_type is not None:
+            return hru_type.array
+        return np.ones(self.nhru)
+
+    @property
+    def nhru(self):
+        for p in self.params:
+            if p.dim_names[0] == 'nhru':
+                return p.dim_names[0]
+        return 0
 
     @property
     def params(self):
@@ -102,11 +120,13 @@ class model:
             pf = os.path.join(m.model_ws, pf)
             if 'cascade' not in pf:
                 m.files[pf] = paramFile.load(pf, nrow=nrow, ncol=ncol,
+                                              model=m,
                                               verbose=verbose)
             else:
                 m.files[pf] = cascadeParamFile.load(pf,
                                                      xy_points=xy_points, sr=sr,
                                                      nrow=nrow, ncol=ncol,
+                                                     model=m,
                                                      verbose=verbose)
         m.check()
         return m

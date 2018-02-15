@@ -7,7 +7,8 @@ class param:
 
     def __init__(self, name, values, dim_names=['one'],
                  filename=None,
-                 dtype=None, nrow=None, ncol=None, verbose=False):
+                 dtype=None, nrow=None, ncol=None, model=None,
+                 verbose=False):
 
         if not isinstance(values, list) and not isinstance(values, np.ndarray):
             values = [values]
@@ -25,6 +26,7 @@ class param:
 
         self.name = name
         self.filename = filename
+        self.model = model
         if isinstance(dim_names, str):
             self.dim_names = [dim_names]
         else:
@@ -36,6 +38,13 @@ class param:
         self.verbose = verbose
 
     @property
+    def active(self):
+        if self.model is not None and self.dim_names[0] == 'nhru':
+            return self.model.hru_type > 0
+        else:
+            return np.ones(self.nvalues, dtype=bool)
+
+    @property
     def ndim(self):
         return len(self.dim_names)
 
@@ -44,9 +53,15 @@ class param:
         return self.array.size
 
     @property
+    def nactive_values(self):
+        return self.active.sum()
+
+    @property
     def min(self):
         try:
-            val = self.array.min()
+            arr = self.array.ravel()
+            active = self.active.ravel()
+            val = arr[active].min()
         except:
             val = self.array[0]
         return val
@@ -55,7 +70,9 @@ class param:
     def mean(self):
         val = np.nan
         try:
-            val = self.array.mean()
+            arr = self.array.ravel()
+            active = self.active.ravel()
+            val = arr[active].mean()
         except:
             if self.nvalues > 1:
                 val = self.array[1]
@@ -65,7 +82,9 @@ class param:
     def max(self):
         val = np.nan
         try:
-            val = self.array.max()
+            arr = self.array.ravel()
+            active = self.active.ravel()
+            val = arr[active].max()
         except:
             if self.nvalues > 2:
                 val = self.array[2]
@@ -110,7 +129,7 @@ class param:
 class paramFile(object):
 
     def __init__(self, filename='stuff.param', dimensions={}, params={},
-                 nrow=None, ncol=None, comments=None,
+                 nrow=None, ncol=None, model=None, comments=None,
                  verbose=False):
 
         if comments is None:
@@ -118,6 +137,7 @@ class paramFile(object):
         else:
             self.comments = comments.strip() + '\n'
 
+        self.model = model
         self.filename = filename
         self.dimensions = dimensions.copy()
         self.params = params.copy()
@@ -136,6 +156,7 @@ class paramFile(object):
         for k, v in self.params.items():
             plist.append([v.name, ' '.join(v.dim_names),
                           v.nvalues,
+                          v.nactive_values,
                           v.min,
                           v.mean,
                           v.max,
@@ -143,6 +164,7 @@ class paramFile(object):
         return pd.DataFrame(plist, columns=['name',
                                             'dimensions',
                                             'nvalues',
+                                            'nactive_values',
                                             'min',
                                             'mean',
                                             'max',
@@ -234,7 +256,9 @@ class paramFile(object):
         self.params[name] = param(name, values,
                                   dim_names=dim_names,
                                   filename=self.filename,
-                                  dtype=dtype, nrow=self.nrow, ncol=self.ncol)
+                                  dtype=dtype,
+                                  nrow=self.nrow, ncol=self.ncol,
+                                  model=self.model)
         self.param_order.append(name)
         if self.verbose:
             print(name)
@@ -247,7 +271,9 @@ class paramFile(object):
         if load_only is not None and isinstance(load_only, str):
             load_only = [load_only]
 
-        pf = paramFile(filename=filename, nrow=nrow, ncol=ncol, verbose=verbose)
+        pf = paramFile(filename=filename, nrow=nrow, ncol=ncol,
+                       model=model,
+                       verbose=verbose)
         pf.load_only = load_only
         with open(filename) as input:
 
@@ -268,12 +294,11 @@ class paramFile(object):
             for param in load_only:
                 print('{} not found!'.format(param))
         if model is not None:
-            model.dimensions.update(pf.dimensions)
-            model.params.update(pf.params)
-            model.param_files[filename] = pf
-            model.paramdf.append(pf.df)
-        else:
-            return pf
+            #model.dimensions.update(pf.dimensions)
+            #model.params.update(pf.params)
+            model.files[filename] = pf
+            #model.paramdf.append(pf.df)
+        return pf
 
     def write(self, filename=None):
 

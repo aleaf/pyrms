@@ -15,6 +15,7 @@ class cascadeParamFile(paramFile):
 
     def __init__(self, filename='stuff.param', dimensions={}, params={},
                  nrow=None, ncol=None, xy_points=None, sr=None, gw=False,
+                 model=None,
                  verbose=False):
 
         paramFile.__init__(self, filename=filename, dimensions=dimensions, params=params,
@@ -27,6 +28,7 @@ class cascadeParamFile(paramFile):
         self.xy_points = xy_points
         self.epsg = None
         self.proj4 = None
+        self.model = model
         if sr is not None:
             self.xy_points = np.array(list(zip(sr.xcentergrid.ravel(),
                                                sr.ycentergrid.ravel())))
@@ -67,6 +69,7 @@ class cascadeParamFile(paramFile):
 
         pf = cascadeParamFile(filename=filename, nrow=nrow, ncol=ncol,
                               xy_points=None, sr=sr, gw=gw,
+                              model=model,
                               verbose=verbose)
 
         if load_only is not None and isinstance(load_only, str):
@@ -90,10 +93,10 @@ class cascadeParamFile(paramFile):
             pf.gw = True
 
         if model is not None:
-            model.dimensions.update(pf.dimensions)
-            model.params.update(pf.params)
-            model.param_files[filename] = pf
-            model.paramdf.append(pf.df)
+            #model.dimensions.update(pf.dimensions)
+            #model.params.update(pf.params)
+            model.files[filename] = pf
+            #model.paramdf.append(pf.df)
         return pf
 
     @staticmethod
