@@ -27,7 +27,7 @@ setup(name=__name__,
       author_email='aleaf@usgs.gov',
       license='New BSD',
       platforms='Windows, Mac OS-X',
-      install_requires=['numpy', 'pandas', 'shapely', 'GIS_utils'],
+      install_requires=['numpy', 'pandas', 'shapely', 'gis-utils'],
       packages=['pyrms'],
       include_package_data=True, # includes files listed in MANIFEST.in
       # use this version ID if .svn data cannot be found

@@ -1,10 +1,6 @@
-import sys
-sys.path.append('D:/ATLData/Documents/GitHub/pyrms/')
-sys.path.append('D:/ATLData/Documents/GitHub/flopy/')
-sys.path.append('D:/github/flopy/')
-sys.path.append('D:/github/GIS_utils/')
 import numpy as np
 import pandas as pd
+
 try:
     from shapely.geometry import LineString, Point
 except:
@@ -12,7 +8,7 @@ except:
     Point = False
 from .param import paramFile
 try:
-    from GISio import df2shp
+    from gisutils import df2shp
 except:
     df2shp = False
 
