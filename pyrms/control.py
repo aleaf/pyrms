@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from .dtypes import dtypes
+from pyrms.dtypes import dtypes
 
 
 class controlParam:

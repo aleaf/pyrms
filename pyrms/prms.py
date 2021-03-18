@@ -1,9 +1,9 @@
 import os
 import numpy as np
 import pandas as pd
-from .cascades import cascadeParamFile
-from .control import controlFile
-from .param import paramFile
+from pyrms.cascades import cascadeParamFile
+from pyrms.control import controlFile
+from pyrms.param import paramFile
 
 class model:
 
