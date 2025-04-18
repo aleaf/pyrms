@@ -12,6 +12,7 @@ try:
 except:
     df2shp = False
 
+
 if not LineString:
     class LineString:
         def __init__(self, crds):
@@ -19,6 +20,7 @@ if not LineString:
     class Point:
         def __init__(self, x, y):
             return x, y
+
 
 class cascadeParamFile(paramFile):
 
@@ -77,7 +79,7 @@ class cascadeParamFile(paramFile):
              load_only=None):
 
         pf = cascadeParamFile(filename=filename, nrow=nrow, ncol=ncol,
-                              xy_points=None, sr=sr, gw=gw,
+                              xy_points=xy_points, sr=sr, gw=gw,
                               model=model,
                               verbose=verbose)
 

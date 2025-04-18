@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from pyrms.cascades import cascadeParamFile
 from pyrms.control import controlFile
 from pyrms.param import paramFile
+
 
 class model:
 
@@ -117,8 +119,8 @@ class model:
                 print('\tskipping {}'.format(pf))
                 continue
             print(pf)
-            pf = os.path.join(m.model_ws, pf)
-            if 'cascade' not in pf:
+            pf = Path(m.model_ws, pf.replace('\\', '/'))
+            if 'cascade' not in str(pf):
                 m.files[pf] = paramFile.load(pf, nrow=nrow, ncol=ncol,
                                               model=m,
                                               verbose=verbose)

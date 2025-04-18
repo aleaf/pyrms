@@ -250,6 +250,8 @@ class paramFile(object):
                 values += [convert_dtype(val)] * int(nval)
             elif '####' in val:
                 break
+            elif val.strip() == '':
+                continue
             else:
                 values.append(convert_dtype(val))
         #values = [convert_dtype(next(f).strip()) for i in range(nvalues)]
