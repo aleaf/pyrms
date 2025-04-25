@@ -119,7 +119,7 @@ class param:
             f.write('{}\n'.format(n))
         f.write('{:d}\n{:d}\n'.format(self.nvalues, self.dtype))
         df = pd.DataFrame(a)
-        df.to_csv(f, index=False, header=False, line_terminator='\n', **kwargs)
+        df.to_csv(f, index=False, header=False, lineterminator='\n', **kwargs)
         if self.verbose:
             print(self.name)
         if close:
